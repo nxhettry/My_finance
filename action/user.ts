@@ -1,12 +1,10 @@
 "use server";
 
+import User from "@/models/model.user";
 import { signUpSchema } from "@/zod/sign-up.schema";
-import { UserService } from "@/src/domain/service/UserService";
-import { UserRepository } from "@/src/infrastructure/repository/UserRepository";
 import { redirect } from "next/navigation";
-
-const userRepository = new UserRepository();
-const userService = new UserService(userRepository);
+import bcrypt from "bcryptjs";
+import connectDb from "@/lib/connectDb";
 
 export const registerUser = async (formData: FormData) => {
   const { email, password } = Object.fromEntries(formData);
@@ -22,16 +20,18 @@ export const registerUser = async (formData: FormData) => {
       throw new Error("Invalid email or password");
     }
 
-    const userExist = await userService.findByEmail(email as string);
+    await connectDb();
 
-    if (userExist !== null) {
-      console.log("Yaha 1");
-      throw new Error("User already exists");
+    const userExist = await User.find({ email: email });
+
+    if (userExist.length > 0) {
+      throw new Error("User already exist");
     }
 
-    await userService.save({
-      email: email as string,
-      password: password as string,
+    await User.create({
+      email: email,
+      password: await bcrypt.hash(password as string, 10),
+      username: (email as string).split("@")[0],
     });
   } catch (error) {
     console.log(error);

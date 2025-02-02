@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GenerateToken } from "@/utils/GenerateToken";
 import User, { IUser } from "@/models/model.user";
-import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcryptjs";
 import connectDb from "@/lib/connectDb";
 
@@ -17,7 +16,6 @@ export async function POST(req: NextRequest) {
     await connectDb();
 
     const newUser: IUser = new User({
-      id: uuidv4(),
       email: userData.email,
       password: await bcrypt.hash(userData.password, 10),
       username: userData.email.slice(0, userData.email.indexOf("@")),
