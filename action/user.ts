@@ -24,7 +24,7 @@ export const registerUser = async (formData: FormData) => {
 
     const userExist = await User.find({ email: email });
 
-    if (userExist.length > 0) {
+    if (userExist) {
       throw new Error("User already exist");
     }
 
@@ -38,4 +38,33 @@ export const registerUser = async (formData: FormData) => {
     return;
   }
   redirect("/sign-in");
+};
+
+export const loginUser = async (formData: FormData) => {
+  const { email, password } = Object.fromEntries(formData);
+
+  if (!email || !password) {
+    throw new Error("Email and password are required");
+  }
+
+  try {
+    await connectDb();
+
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const isMatch = await bcrypt.compare(password as string, user.password);
+
+    if (!isMatch) {
+      throw new Error("Invalid password");
+    }
+  } catch (error) {
+    console.log(error);
+    return;
+  }
+
+  redirect("/private");
 };
