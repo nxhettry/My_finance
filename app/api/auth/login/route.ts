@@ -1,42 +1,42 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { findUserByEmail } from "@/services/userService";
 import { comparePassword, generateToken } from "@/lib/auth";
 import { validateLogin } from "@/utils/validation";
 
-export const POST = async (req: Request) => {
+export async function POST(req: NextRequest) {
   try {
+    const { email, password } = await req.json();
+
     await connectDB();
-    const { identifier, password } = await req.json();
+    validateLogin(email, password);
+    console.log("fixed");
 
-    // ✅ Validate Input
-    validateLogin(identifier, password);
 
-    // 🔍 Find User by Email or Username
-    const user = await findUserByEmail(identifier);
+    const user = await findUserByEmail(email);
+
     if (!user) {
       return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: 401 }
+        {
+          error: "User doesnot exist",
+        },
+        { status: 400 }
       );
     }
 
-    // 🔑 Compare Passwords
-    const isMatch = await comparePassword(password, user.password);
-    if (!isMatch) {
+    if (!(await comparePassword(password, user.password))) {
       return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: 401 }
+        { error: "Invalid Credentials" },
+        { status: 400 }
       );
     }
 
-    // 🎟️ Generate JWT
-    const token = generateToken(user._id);
+    const token = await generateToken(user._id);
     return NextResponse.json({ token }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      { error: error.message || "Server error" },
+      { error: error.message || "server error" },
       { status: 500 }
     );
   }
-};
+}

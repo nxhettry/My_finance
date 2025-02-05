@@ -1,7 +1,7 @@
 import { signInSchema, signUpSchema } from "@/zod/authSchema";
 
 // For Registration
-export const validateRegister = ( email: string, password: string) => {
+export const validateRegister = (email: string, password: string) => {
   const result = signUpSchema.safeParse({ email, password });
   if (!result.success) {
     const error = result.error.errors[0];
@@ -11,8 +11,9 @@ export const validateRegister = ( email: string, password: string) => {
 };
 
 // For Login
-export const validateLogin = (name: string, password: string) => {
-  const result = signInSchema.safeParse({ name, password });
+export const validateLogin = (email: string, password: string) => {
+  const result = signInSchema.safeParse({ email, password });
+
   if (!result.success) {
     const error = result.error.errors[0];
     throw new Error(error.message);

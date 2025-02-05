@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { loginUser } from "@/action/user";
 
 const Login = async () => {
   return (
@@ -14,7 +15,7 @@ const Login = async () => {
           <p className="text-gray-600">Enter your credentials</p>
         </div>
 
-        <form action="" className="space-y-5">
+        <form action={loginUser} className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-gray-700 font-medium">
               Email
