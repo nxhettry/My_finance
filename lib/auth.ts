@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import { hasExternalOtelApiPackage } from "next/dist/build/webpack-config";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
