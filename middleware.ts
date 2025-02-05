@@ -1,11 +1,11 @@
 import { NextResponse, NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
+import { jwtVerify } from "jose";
 
 const PUBLIC_ROUTES = [
   "/api/auth/login",
   "/api/auth/register",
   "/sign-up",
-  "/login",
+  "/sign-in",
   "/",
 ];
 
@@ -16,7 +16,9 @@ const EXCLUDED_PATHS = [
   /^\/robots\.txt$/,
 ];
 
-export function middleware(req: NextRequest) {
+const getKey = () => new TextEncoder().encode(process.env.JWT_SECRET!);
+
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (EXCLUDED_PATHS.some((pattern) => pattern.test(pathname))) {
@@ -27,20 +29,21 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  const token = req.cookies.get("token")?.value;
+
+  if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const token = authHeader.split(" ")[1];
-
   try {
-    const secret = process.env.JWT_SECRET!;
-    const decoded = jwt.verify(token, secret) as { userId: string };
+    const decoded = await jwtVerify(token, getKey());
+    console.log(decoded);
+
     const res = NextResponse.next();
     res.headers.set("X-User-Id", decoded.userId);
     return res;
   } catch (error) {
+    console.log("JWT Error", error);
     return NextResponse.json({ error: "Invalid Token" }, { status: 401 });
   }
 }

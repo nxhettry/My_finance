@@ -10,8 +10,6 @@ export async function POST(req: NextRequest) {
 
     await connectDB();
     validateLogin(email, password);
-    console.log("fixed");
-
 
     const user = await findUserByEmail(email);
 
@@ -32,7 +30,15 @@ export async function POST(req: NextRequest) {
     }
 
     const token = await generateToken(user._id);
-    return NextResponse.json({ token }, { status: 200 });
+    const response = NextResponse.json({ token }, { status: 200 });
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      path: "/",
+    });
+
+    return response;
   } catch (error) {
     return NextResponse.json(
       { error: error.message || "server error" },

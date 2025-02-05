@@ -1,5 +1,6 @@
 "use server";
 import { signUpSchema, signInSchema } from "@/zod/authSchema";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const registerUser = async (formData: FormData) => {
@@ -32,7 +33,7 @@ export const loginUser = async (formData: FormData) => {
   try {
     signInSchema.parse({ email, password });
 
-    const response = await fetch("/api/auth/login", {
+    const response = await fetch("http://localhost:3000/api/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
 
@@ -41,7 +42,6 @@ export const loginUser = async (formData: FormData) => {
       },
       credentials: "include",
     });
-
   } catch (error) {
     console.log(error);
     return;
