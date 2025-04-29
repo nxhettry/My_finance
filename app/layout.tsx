@@ -1,4 +1,5 @@
-import "./globals.css";
+import './globals.css';
+import ServiceWorkerRegister from './ServiceWorkerRegister';
 
 export default function RootLayout({
   children,
@@ -7,7 +8,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`antialiased`}>{children}</body>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#000000" />
+      </head>
+      <body className="antialiased">
+        <ServiceWorkerRegister />
+        {children}
+      </body>
     </html>
   );
 }
